@@ -1,0 +1,30 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: ci-noauth-run-
+spec:
+  pipelineRef:
+    name: ci-fetch-test-build-push
+
+  params:
+    - name: GIT_URL
+      value: https://github.com/viaacode/tkn-demo-noauth
+    - name: GIT_REVISION
+      value: main
+    - name: IMAGE
+      value: registry.example.com/tkn-demo-noauth:latest
+
+  workspaces:
+    - name: shared-workspace
+      volumeClaimTemplate:
+        spec:
+          accessModes: ["ReadWriteOnce"]
+          resources:
+            requests:
+              storage: 1Gi
+
+  serviceAccountName: github-bot
+
+  taskRunSpecs:
+    - pipelineTaskName: build-push
+      taskServiceAccountName: github-bot   # must exist in THIS namespace

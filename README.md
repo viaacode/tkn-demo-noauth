@@ -1,1 +1,1 @@
-# tkn-demo-noauth
+# tkn-demo

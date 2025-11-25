@@ -1,0 +1,39 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: buildkit-daemonless-build-push
+spec:
+  params:
+    - name: IMAGE
+      type: string
+      description: Full image ref, e.g. registry.example.com/tkn-demo-noauth:latest
+    - name: DOCKERFILE
+      type: string
+      default: Dockerfile
+    - name: CONTEXT
+      type: string
+      default: .
+  workspaces:
+    - name: source
+  steps:
+    - name: build-and-push
+      # IMPORTANT: non-rootless image
+      image: docker.io/moby/buildkit:v0.12.5
+      workingDir: $(workspaces.source.path)/$(params.CONTEXT)
+      securityContext:
+        privileged: true
+      command:
+        - buildctl-daemonless.sh
+      args:
+        - --debug
+        - build
+        - --progress=plain
+        - --frontend=dockerfile.v0
+        - --local
+        - context=.
+        - --local
+        - dockerfile=.
+        - --opt
+        - filename=$(params.DOCKERFILE)
+        - --output
+        - type=image,name=$(params.IMAGE),push=true

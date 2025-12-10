@@ -26,3 +26,9 @@ jobs:
 
     - name: Test
       run: echo no test yet
+
+    - name: build-docker
+      run: docker build . -t meeregistrymoo.azurecr.io/meemoo-infra/demo:main
+
+    - name: push
+      run:  docker push meeregistrymoo.azurecr.io/meemoo-infra/demo:main
